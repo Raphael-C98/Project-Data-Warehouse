@@ -114,22 +114,18 @@ weekday int not null
 
 # Extraction into staging tables using redshift copy command
 
-staging_events_copy = (f"""
-copy log_data_staging from 's3://udacity-dend/log_data'
-credentials 'aws_iam_role={config.get('CLUSTER', 'my_redshift_role_arn')}'
-format as json 's3://udacity-dend/log_json_path.json'
-region 'us-west-2';
-""")
 
-staging_songs_copy = (f"""
-copy song_data_staging from 's3://udacity-dend/song_data'
-credentials 'aws_iam_role={config.get('CLUSTER', 'my_redshift_role_arn')}'
-format json 'auto'
+staging_events_copy = ("""
+COPY log_data_staging
+FROM {}
+iam_role {}
+format json {}
 region 'us-west-2';
-""")
+""").format(config.get('S3', 'LOG_DATA'), config.get('CLUSTER', 'my_redshift_role_arn'), config.get('S3', 'LOG_JSONPATH'))
+
 
 staging_songs_copy = ("""
-COPY staging_songs
+COPY song_data_staging
 FROM {}
 iam_role {}
 format json 'auto'
