@@ -128,6 +128,14 @@ format json 'auto'
 region 'us-west-2';
 """)
 
+staging_songs_copy = ("""
+COPY staging_songs
+FROM {}
+iam_role {}
+format json 'auto'
+region 'us-west-2';
+""").format(config.get('S3', 'SONG_DATA'), config.get('CLUSTER', 'my_redshift_role_arn'))
+
 # FINAL TABLES
 
 # Copy into final tables from staging
