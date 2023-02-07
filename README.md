@@ -42,4 +42,4 @@ In order to create the required database & execute the ETL pipeline:
 4. Execute the 'create_tables.py' script via the command line or a Jupyter Notebook
 5. Execute the 'etl.py' script via the command line or a Jupyter Notebook
 6. Execute the 'quality_check.py' script to validate the data
-7. Delete the DWH cluster to avoid any unnessecary costs
+7. Delete the DWH cluster to avoid any unnecessary costs
