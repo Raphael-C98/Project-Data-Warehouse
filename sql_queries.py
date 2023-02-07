@@ -138,7 +138,7 @@ SELECT st.ts, cast(st.userId as integer), st.level, s.song_id, a.artist_id, st.s
        st.location, st.useragent
 FROM log_data_staging st
 LEFT OUTER JOIN songs s
-ON st.song = s.title AND cast(st.length as numeric(10,2)) = cast(s.duration as numeric(10,2))
+ON st.song = s.title AND st.length  = s.duration
 LEFT OUTER JOIN artists a
 ON st.artist = a.name
 WHERE st.userId != ''
