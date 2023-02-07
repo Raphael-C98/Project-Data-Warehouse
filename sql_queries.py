@@ -18,7 +18,7 @@ time_table_drop = "DROP TABLE IF EXISTS exists time"
 
 # staging table for log data
 staging_events_table_create = ("""
-create table if not exists log_data_staging (
+CREATE TABLE IF NOT EXISTS log_data_staging (
 artist text,
 auth text,
 firstName text,
@@ -42,7 +42,7 @@ userid text
 
 # staging table for song dataset
 staging_songs_table_create = ("""
-create table if not exists song_data_staging (
+CREATE TABLE IF NOT EXISTS song_data_staging (
 artist_id text,
 artist_latitude numeric,
 artist_longitude numeric,
@@ -56,7 +56,7 @@ year int
 """)
 
 songplay_table_create = ("""
-create table if not exists songplays (
+CREATE TABLE IF NOT EXISTS songplays (
 songplay_id int identity (0, 1) not null,
 start_time bigint not null distkey sortkey, 
 user_id text null, 
@@ -70,7 +70,7 @@ user_agent text not null
 """)
 
 user_table_create = ("""
-create table if not exists users (
+CREATE TABLE IF NOT EXISTS users (
 user_id int sortkey, 
 first_name text not null, 
 last_name text not null, 
@@ -80,7 +80,7 @@ level text not null
 """)
 
 song_table_create = ("""
-create table if not exists songs (
+CREATE TABLE IF NOT EXISTS songs (
 song_id text sortkey, 
 title text not null, 
 artist_id text not null, 
@@ -90,7 +90,7 @@ duration numeric not null
 """)
 
 artist_table_create = ("""
-create table if not exists artists (
+CREATE TABLE IF NOT EXISTS artists (
 artist_id text sortkey, 
 name text not null, 
 location text null, 
@@ -100,7 +100,7 @@ longitude numeric null
 """)
 
 time_table_create = ("""
-create table if not exists time 
+CREATE TABLE IF NOT EXISTS time 
 (
 start_time bigint sortkey, 
 hour int not null, 
@@ -133,48 +133,48 @@ region 'us-west-2';
 # Copy into final tables from staging
 
 songplay_table_insert = ("""
-insert into songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
-select st.ts, cast(st.userId as integer), st.level, s.song_id, a.artist_id, st.sessionid,
+INSERT INTO songplays (start_time, user_id, level, song_id, artist_id, session_id, location, user_agent)
+SELECT st.ts, cast(st.userId as integer), st.level, s.song_id, a.artist_id, st.sessionid,
        st.location, st.useragent
-from log_data_staging st
-left outer join songs s
-on st.song = s.title and cast(st.length as numeric(10,2)) = cast(s.duration as numeric(10,2))
-left outer join artists a
-on st.artist = a.name
-where st.userId != ''
-and page = 'NextSong';
+FROM log_data_staging st
+LEFT OUTER JOIN songs s
+ON st.song = s.title AND cast(st.length as numeric(10,2)) = cast(s.duration as numeric(10,2))
+LEFT OUTER JOIN artists a
+ON st.artist = a.name
+WHERE st.userId != ''
+AND page = 'NextSong';
 """)
 
 user_table_insert = ("""
-insert into users (user_id, first_name, last_name, gender, level)
-select distinct cast(userId as integer), firstName, lastName, gender, level
-from log_data_staging
-where userId != ''
+INSERT INTO users (user_id, first_name, last_name, gender, level)
+SELECT DISTINCT cast(userId as integer), firstName, lastName, gender, level
+FROM log_data_staging
+WHERE userId != ''
 """)
 
 song_table_insert = ("""
-insert into songs (song_id, title, artist_id, year, duration) 
-select distinct song_id, title, artist_id, year, duration
-from song_data_staging
+INSERT INTO songs (song_id, title, artist_id, year, duration) 
+SELECT DISTINCT song_id, title, artist_id, year, duration
+FROM song_data_staging
 """)
 
 artist_table_insert = ("""
-insert into artists (artist_id, name, location, latitude, longitude) 
-select distinct artist_id, artist_name, artist_location, artist_latitude, artist_longitude
-from song_data_staging
+INSERT INTO artists (artist_id, name, location, latitude, longitude) 
+SELECT DISTINCT artist_id, artist_name, artist_location, artist_latitude, artist_longitude
+FROM song_data_staging
 """)
 
 time_table_insert = ("""
-insert into time (start_time, hour, day, week, month, year, weekday)
-select distinct ts,
+INSERT INTO time (start_time, hour, day, week, month, year, weekday)
+SELECT DISTINCT ts,
 date_part('hour', dateadd("ms", ts, '1970-01-01')) as hour,
 date_part('day', dateadd("ms", ts, '1970-01-01')) as day,
 date_part('week', dateadd("ms", ts, '1970-01-01')) as week,
 date_part('month', dateadd("ms", ts, '1970-01-01')) as month,
 date_part('year', dateadd("ms", ts, '1970-01-01')) as year,
 date_part('dow', dateadd("ms", ts, '1970-01-01')) as weekday
-from log_data_staging
-where page = 'NextSong'
+FROM log_data_staging
+WHERE page = 'NextSong'
 """)
 
 # QUERY LISTS
